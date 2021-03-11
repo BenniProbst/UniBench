@@ -1,5 +1,6 @@
-import INSTALL
+import Installation_Script
 
 import os
+
 if __name__ == '__main__':
-    states = Install()
+    states = Installation_Script.Install()
