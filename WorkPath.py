@@ -35,3 +35,6 @@ class WorkPath:
             if new_dir.endswith('/'):
                 new_dir = new_dir[:-1]
             tmp_dir = new_dir
+
+    def out(self):
+        return self.tmp_dir

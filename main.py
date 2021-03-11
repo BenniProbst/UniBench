@@ -1,9 +1,12 @@
-import Installation_Script
+import WorkPath
+import Installation
 
 import os
 
 if __name__ == '__main__':
-    states = Installation_Script.Install()
+    work_path = WorkPath.WorkPath()
+    # revisions
+    states = Installation.Installation(work_path.tmp_dir)
 
 #import sys
 
