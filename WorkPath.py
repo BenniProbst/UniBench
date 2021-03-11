@@ -6,7 +6,7 @@ class WorkPath:
     tmp_dir = ""
 
     def __init__(self):
-        print('---Workpath Setup---')
+        print('---Workpath setup---')
         install_dir = '/home/' + str(getpass.getuser())
         print(
             'Give me the installation path where your program main folder should be installed to; press enter for '

@@ -1,16 +1,9 @@
 import WorkPath
 import Installation
+import Revision
 
-import os
 
 if __name__ == '__main__':
     work_path = WorkPath.WorkPath()
-    # revisions
-    states = Installation.Installation(work_path.tmp_dir)
-
-#import sys
-
-#input_arg = str(sys.argv)
-#process_arg = [str]
-
-#print(process_arg)
+    revisions = Revision.Revision(work_path.tmp_dir)
+    states = Installation.Installation(revisions)
