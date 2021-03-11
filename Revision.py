@@ -2,8 +2,13 @@ import os
 
 
 class Revision:
+
+    def revision_setup(self):
+        program_url = input('Git URL:')
+
     def __init__(self):
-        program_name = input('Program main folder name:')
-        print(
-            'Give me the installation path where your program main folder should be installed to; press enter for '
-            'default.')
+        print('---Revision setup---')
+        while True:
+            self.revision_setup()
+            if input('Add another program revision? (y/n): ') == 'n':
+                break
