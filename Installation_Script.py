@@ -20,6 +20,9 @@ class Install:
             if new_dir.endswith('/'):
                 new_dir = new_dir[:-1]
             tmp_dir = new_dir + '/' + program_name
+        if not os.path.exists(tmp_dir):
+            os.makedirs(tmp_dir)
+        
         # install_config = FileLineController(tmp_dir,program_name + '.i_config')
         # .i_run configuration
         # print('Python Morpheus installation script:')
