@@ -44,14 +44,37 @@ class SelectableLineSaver(LineSaver):
             print('Run order:')
             print(self.in_memory_run[0])
 
+    def add(self, com):
+        st = com.removeprefix('add ')
+        multi_com = st.split(',')
+        for m in multi_com:
+            self.append(m.replace('\"', ''))
+        return self.in_memory
+
+    def remove_config(self, index_str):
+        st = index_str.removeprefix('remove ')
+        multi_com = st.split(',')
+        for m in multi_com:
+            to_del = int(m)
+            self.remove(to_del)
+            run_config = self.in_memory_run[0].split(',')
+            run_numbers = []
+            for r in run_config:
+                if int(r) != to_del:
+                    run_numbers.append(int(r))
+            for n in run_numbers:
+                if n >= to_del:
+                    n -= 1
+            self.in_memory_run[0] = ''
+            self.write_back_run()
+            for n in run_numbers:
+                self.append_run(n)
+
     def configure(self, cmd_list):
         count = 1
         for c in cmd_list:
             self.append(c)
-            if len(self.in_memory_run[0]) == 0:
-                self.in_memory_run[0] += str(count)
-            else:
-                self.in_memory_run[0] += ',' + str(count)
+            self.append_run(count)
             count += 1
         self.write_back_run()
         self.help()
@@ -59,17 +82,23 @@ class SelectableLineSaver(LineSaver):
         while True:
             com = input('Configuration command: ')
             if com.startswith('add'):
-                pass
+                try:
+                    self.add(com)
+                except Exception:
+                    print('Adding command(s) failed!')
             elif com.startswith('remove'):
-                pass
+                try:
+                    self.remove_config(com)
+                except Exception:
+                    print('Removing command(s) failed!')
             elif com.startswith('save_run'):
                 pass
             elif com.startswith('run'):
                 pass
             elif com.startswith('help'):
-                pass
+                self.help()
             else:
-                print('Invalid command!')
+                print('Invalid command! Please try again...')
 
     def load_from_file_run(self):  # discard changes
         with open(self.target_file_run, 'r') as f:
@@ -87,9 +116,12 @@ class SelectableLineSaver(LineSaver):
     def save_to_memory_run(self, listing):
         self.in_memory_run = listing
 
-    def append_run(self, thing):
-        self.in_memory_run = self.load_from_file_run()
-        self.in_memory_run.append(thing)
+    def append_run(self, number):
+        self.load_from_file_run()
+        if len(self.in_memory_run[0]) == 0:
+            self.in_memory_run[0] += str(number)
+        else:
+            self.in_memory_run[0] += ',' + str(number)
         self.write_back_run()
 
     def insert_run(self, thing, index):
@@ -97,7 +129,7 @@ class SelectableLineSaver(LineSaver):
         self.in_memory_run.insert(index, thing)
         self.write_back_run()
 
-    def remove(self, index):
+    def remove_run(self, index):
         self.in_memory_run = self.load_from_file_run()
         self.in_memory_run.remove(index)
         self.write_back_run()
