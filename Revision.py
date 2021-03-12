@@ -7,11 +7,17 @@ import WorkPath
 
 
 class Revision:
-    revision_setups = None
+    revision_setups_line = None
     working_directory = None
 
     def revision_setup(self, program_url, username, password, project_path, project_name):
-        self.revision_setups.append(project_path)
+        if not os.path.isdir(project_path):
+            print('Pfad existiert nicht und wird erstellt: \n' + project_path)
+        if not os.path.isdir(project_path + '/' + project_name):
+            print('Pfad existiert nicht und wird erstellt: \n' + project_path + '/' + project_name)
+        self.revision_setups_line.append(project_path)
+        local_saver_path = Path(str(Path(project_path).absolute()) + '/revisions')
+        revisions_line = LineSaver.LineSaver(local_saver_path)
         while True:
             git_branch = input('Git branch: ')
             git_code = input('Git revision SHA: ')
@@ -52,8 +58,8 @@ class Revision:
 
     def __init__(self, work_dir):
         self.working_directory = work_dir
-        saver_path = Path(str(Path(work_dir).absolute()) + '/revision_setups.UniBench_config')
-        self.revision_setups = LineSaver.LineSaver(saver_path)
+        saver_path = Path(str(Path(work_dir).absolute()) + '/revision_setups')
+        self.revision_setups_line = LineSaver.LineSaver(saver_path)
         print('-----Revision setup-----')
         print('WARNING: ALL GIVEN SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE TEST '
               'PROPERTIES!!!')

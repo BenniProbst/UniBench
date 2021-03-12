@@ -8,7 +8,7 @@ class LineSaver:
     in_memory = []
 
     def __init__(self, t_f):
-        self.target_file = Path(t_f)
+        self.target_file = Path(t_f + '.UniBench_config')
         working_dir = Path(os.path.dirname(self.target_file.absolute()))
         if not os.path.isdir(working_dir):
             os.makedirs(working_dir)
@@ -38,7 +38,24 @@ class LineSaver:
         self.in_memory.append(thing)
         self.write_back()
 
+    def append_list(self, listing):
+        self.in_memory = self.load_from_file()
+        for i in listing:
+            self.in_memory.append(i)
+        self.write_back()
+
     def insert(self, thing, index):
         self.in_memory = self.load_from_file()
         self.in_memory.insert(index, thing)
+        self.write_back()
+
+    def remove(self, index):
+        self.in_memory = self.load_from_file()
+        self.in_memory.remove(index)
+        self.write_back()
+
+    def remove_list(self, listing):
+        self.in_memory = self.load_from_file()
+        for i in listing:
+            self.in_memory.remove(i)
         self.write_back()
