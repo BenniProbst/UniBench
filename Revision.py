@@ -3,13 +3,13 @@ import getpass
 
 
 class Revision:
-    suites = ''
-    tests = ''
+    suites = None
+    tests = None
 
     def revision_setup(self, working_directory, program_url, username, password, project_name):
         while True:
             git_branch = input('Git branch: ')
-            git_code = input('Git revision code: ')
+            git_code = input('Git revision SHA: ')
             cmd0 = ['cd', '\"' + working_directory + '\"']
             cmd1 = ['git', 'clone', '-n', program_url,
                     working_directory + '/' + project_name + '-' + git_branch + '-' + git_code]
@@ -20,6 +20,7 @@ class Revision:
             for line in process.stdout:
                 out.append(line)
             process = subprocess.Popen(cmd1, shell=True, stdout=subprocess.PIPE)
+            # SHA Ziel ordner und repository universell einrichten, dass es herunterlädt
             process.wait()
             out = []
             for line in process.stdout:
