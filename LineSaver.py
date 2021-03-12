@@ -13,17 +13,17 @@ class LineSaver:
         if not os.path.isdir(working_dir):
             os.makedirs(working_dir)
         if not os.path.isfile(self.target_file):
-            with open(self.target_file, 'w') as f:
+            with open(self.target_file, 'w+') as f:
                 pickle.dump(self.in_memory, f)
         self.in_memory = self.load_from_file()
 
     def load_from_file(self):  # discard changes
-        with open(self.target_file, 'rb') as f:
+        with open(self.target_file, 'r') as f:
             self.in_memory = pickle.load(f)
         return self.in_memory
 
     def write_back(self):
-        with open(self.target_file, 'wb') as f:
+        with open(self.target_file, 'w+') as f:
             pickle.dump(self.in_memory, f)
         return self.in_memory
 
