@@ -5,7 +5,7 @@ import pickle
 
 class LineSaver:
     target_file = Path(os.path.expanduser("~") + '/noname.UniBench_config')
-    in_memory = ['']
+    in_memory = []
 
     def __init__(self, t_f):
         self.target_file = Path(t_f)

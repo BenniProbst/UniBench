@@ -5,12 +5,13 @@ from pathlib import Path
 class WorkPath:
     tmp_dir = None
 
-    def __init__(self):
+    def __init__(self, specific_type_string):
         print('---Workpath setup---')
         install_dir = Path(os.path.expanduser("~"))
         print(
-            'Give me the installation path where your program main folder(s) should be installed to; press enter for '
-            'default setup.')
+            'Give me the installation path where your ' + specific_type_string + 'main folder(s) should be installed '
+                                                                                 'to; press enter for '
+                                                                                 'default setup.')
         print('Default:' + str(install_dir.absolute()))
         new_dir = Path(input("Work directory:"))
         while len(str(new_dir)) > 0 and not os.path.isdir(new_dir):
