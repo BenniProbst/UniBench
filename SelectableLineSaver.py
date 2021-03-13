@@ -74,7 +74,7 @@ class SelectableLineSaver(LineSaver):
                 self.append_run(n)
 
     def save_run(self, com):
-        re.compile('[[0-9]+^,]+', com)
+        re.compile('^[0-9]+(,[0-9]+)*$')
         char_ref = re.findall('[0-9]+', com)
         self.in_memory_run[0] = ",".join(char_ref)
         self.write_back_run()
@@ -116,7 +116,7 @@ class SelectableLineSaver(LineSaver):
                     print("Could not read the sequence!")
             elif com.startswith('run'):
                 try:
-                    re.compile('[[0-9]+^,]+', com)
+                    re.compile('^[0-9]+(,[0-9]+)*$')
                     char_ref = re.findall('[0-9]+', com)
                     for c in char_ref:
                         if c > len(self.in_memory):
