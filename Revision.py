@@ -1,7 +1,6 @@
 import getpass
 import os
 import LineSaver
-import SelectableLineSaver
 from pathlib import Path
 import WorkPath
 import shutil
@@ -42,7 +41,7 @@ class Revision:
                 os.makedirs(revision_output_folder)
             os.chdir(revision_output_folder)
             try:
-                console_config = SelectableLineSaver.SelectableLineSaver(revision_output_folder)
+                console_config = LineSaver.SelectableLineSaver(revision_output_folder)
                 console_config.configure(commands, login_keys)
                 revisions_line.append(revision_output_folder)
                 os.chdir(project_path)
@@ -78,6 +77,7 @@ class Revision:
         self.working_directory = Path(work_dir)
         saver_path = Path(str(Path(work_dir).absolute()) + '/revision_setups')
         self.revision_setups_line = LineSaver.LineSaver(saver_path)
+        self.revision_setups_line.append(self.working_directory)
         print('-----Revision setup-----')
         print('WARNING: ALL GIVEN SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE TEST '
               'PROPERTIES!!!')
