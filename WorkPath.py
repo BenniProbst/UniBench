@@ -1,20 +1,28 @@
 import os
-from pathlib import Path
-
 
 class WorkPath:
     tmp_dir = None
 
     def __init__(self, specific_type_string):
         print('---Workpath setup---')
-        install_dir = Path(os.path.expanduser("~"))
+        install_dir = os.path.expanduser("~")
         print(
             'Give me the installation path where your ' + specific_type_string + 'main folder(s) should be installed '
                                                                                  'to; press enter for '
                                                                                  'default setup.')
-        print('Default:' + str(install_dir.absolute()))
-        new_dir = Path(input("Work directory:"))
-        while len(str(new_dir)) > 0 and not os.path.isdir(new_dir):
+        print('Default:' + install_dir)
+        new_dir = None
+        while True:
+            try:
+                work_in = input("Work directory:")
+                if len(work_in) == 0:
+                    new_dir = None
+                else:
+                    new_dir = os.path.realpath(work_in)
+                break
+            except Exception:
+                print('Invalid Syntax! Please try again...')
+        while not (new_dir is None) and not os.path.exists(new_dir):
             print("An Error occured. This may not be a valid path!")
             print(new_dir)
             create = ''
@@ -32,10 +40,19 @@ class WorkPath:
                     continue
             if create == 'y':
                 continue
-            new_dir = Path(input('New installation directory:'))
-            if len(str(new_dir)) == 0:
+            while True:
+                try:
+                    work_in = input("New installation directory:")
+                    if len(work_in) == 0:
+                        new_dir = None
+                    else:
+                        new_dir = os.path.realpath(work_in)
+                    break
+                except Exception:
+                    print('Invalid Syntax! Please try again...')
+            if new_dir is None:
                 new_dir = install_dir
-        if len(new_dir) == 0:
+        if new_dir is None:
             new_dir = install_dir
         self.tmp_dir = new_dir
         print('Working directory: ' + self.tmp_dir)

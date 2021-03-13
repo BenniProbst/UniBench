@@ -1,17 +1,18 @@
-from pathlib import Path
 import pickle
 import os
 import re
 from subprocess import PIPE, Popen, STDOUT
+from pathlib import Path
 
 
 class LineSaver:
-    target_file = Path(os.path.expanduser("~") + '/noname.UniBench_config')
-    in_memory = []
+    target_file = os.path.expanduser("~") + '/noname.UniBench_config'
+    in_memory = ['']
 
     def __init__(self, t_f):
-        self.target_file = Path(t_f + '.UniBench_config')
-        working_dir = Path(os.path.dirname(self.target_file.absolute()))
+        self.target_file = t_f + '.UniBench_config'
+        parentinator = Path(self.target_file).parent
+        working_dir = str(parentinator)
         if not os.path.isdir(working_dir):
             os.makedirs(working_dir)
         if not os.path.isfile(self.target_file):
@@ -37,39 +38,49 @@ class LineSaver:
 
     def append(self, thing):
         self.in_memory = self.load_from_file()
+        if len(self.in_memory) == 1 and self.in_memory[0] == '':
+            self.in_memory = []
         self.in_memory.append(thing)
         self.write_back()
 
     def append_list(self, listing):
         self.in_memory = self.load_from_file()
+        if len(self.in_memory) == 1 and self.in_memory[0] == '':
+            self.in_memory = []
         for i in listing:
             self.in_memory.append(i)
         self.write_back()
 
     def insert(self, thing, index):
         self.in_memory = self.load_from_file()
+        if len(self.in_memory) == 1 and self.in_memory[0] == '':
+            self.in_memory = []
         self.in_memory.insert(index, thing)
         self.write_back()
 
     def remove(self, index):
         self.in_memory = self.load_from_file()
         self.in_memory.remove(index)
+        if len(self.in_memory) == 0:
+            self.in_memory = ['']
         self.write_back()
 
     def remove_list(self, listing):
         self.in_memory = self.load_from_file()
         for i in listing:
             self.in_memory.remove(i)
+        if len(self.in_memory) == 0:
+            self.in_memory = ['']
         self.write_back()
 
 
 class SelectableLineSaver(LineSaver):
-    target_run = Path(os.path.expanduser("~") + '/noname.UniBench_config_run')
+    target_run = os.path.expanduser("~") + '/noname.UniBench_config_run'
     in_memory_run = ['']
 
     def __init__(self, t_f):
         super().__init__(t_f)
-        self.target_run = Path(t_f + '.UniBench_config_run')
+        self.target_run = t_f + '.UniBench_config_run'
         if not os.path.isfile(self.target_run):
             with open(self.target_run, 'w') as f:
                 pickle.dump(self.in_memory_run, f)

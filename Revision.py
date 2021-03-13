@@ -1,7 +1,6 @@
 import getpass
 import os
 import LineSaver
-from pathlib import Path
 import WorkPath
 import shutil
 
@@ -21,6 +20,7 @@ class Revision:
         return commands
 
     def revision_setup(self, program_url, username, password, project_path, project_name):
+        print('---Revision setup---')
         if not os.path.isdir(project_path):
             print('Pfad existiert nicht und wird erstellt: \n' + project_path)
         if not os.path.isdir(project_path + '/' + project_name):
@@ -29,14 +29,14 @@ class Revision:
         if not os.path.isdir(project_path):
             os.makedirs(project_path)
         os.chdir(project_path)
-        local_saver_path = Path(str(Path(project_path).absolute()) + '/revisions')
+        local_saver_path = project_path + '/revisions'
         revisions_line = LineSaver.LineSaver(local_saver_path)
         login_keys = {'Username:': username, 'Password:': password}
         while True:
             git_branch = input('Git branch: ')
             git_code = input('Git revision SHA: ')
             commands = self.cmd_git(program_url, project_path, project_name, git_branch, git_code)
-            revision_output_folder = Path(str(project_path) + '/' + project_name + '-' + git_branch + '-' + git_code)
+            revision_output_folder = project_path + '/' + project_name + '-' + git_branch + '-' + git_code
             if not os.path.isdir(revision_output_folder):
                 os.makedirs(revision_output_folder)
             os.chdir(revision_output_folder)
@@ -74,10 +74,9 @@ class Revision:
         return url
 
     def __init__(self, work_dir):
-        self.working_directory = Path(work_dir)
-        saver_path = Path(str(Path(work_dir).absolute()) + '/revision_setups')
+        self.working_directory = os.path.realpath(work_dir)
+        saver_path = work_dir + '/revision_setups'
         self.revision_setups_line = LineSaver.LineSaver(saver_path)
-        self.revision_setups_line.append(self.working_directory)
         print('-----Revision setup-----')
         print('WARNING: ALL GIVEN SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE TEST '
               'PROPERTIES!!!')
@@ -88,7 +87,7 @@ class Revision:
             username = input('Target platform username: ')
             password = getpass.getpass(prompt='Target platform password: ')
             project_name = self.p_name(program_url)
-            project_path = Path(str(self.working_directory.absolute()) + '/' + project_name)
+            project_path = self.working_directory + '/' + project_name
             print('Default main project folder, named ' + project_name + ', where sub-revisions will be stored to:\n'
                   + project_path)
             use_default_project_name = input('Do you want to use the default path for revision enrollment inside of '
@@ -102,10 +101,10 @@ class Revision:
                 use_default_project_name = input('Do you want to use the default path for revision enrollment inside '
                                                  'of that directory? (y/n)')
                 if use_default_project_name == 'n':
-                    project_path = Path(WorkPath.WorkPath('project').out())
+                    project_path = WorkPath.WorkPath('project').out()
                     if not os.path.isdir(project_path):
                         print('An Error occured! Project path could not be set. Please try again!')
-                        project_path = Path(str(self.working_directory.absolute()) + '/' + project_name)
+                        project_path = self.working_directory + '/' + project_name
                         use_default_project_name = ''
 
             self.revision_setup(program_url, username, password, project_path, project_name)
