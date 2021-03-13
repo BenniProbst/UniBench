@@ -1,4 +1,3 @@
-import pickle
 import os
 import re
 from subprocess import PIPE, Popen, STDOUT
@@ -17,17 +16,16 @@ class LineSaver:
             os.makedirs(working_dir)
         if not os.path.isfile(self.target_file):
             with open(self.target_file, 'w+') as f:
-                pickle.dump(self.in_memory, f)
-        self.in_memory = self.load_from_file()
+                f.writelines(self.in_memory)
 
     def load_from_file(self):  # discard changes
         with open(self.target_file, 'r') as f:
-            self.in_memory = pickle.load(f)
+            self.in_memory = f.readlines()
         return self.in_memory
 
     def write_back(self):
         with open(self.target_file, 'w+') as f:
-            pickle.dump(self.in_memory, f)
+            f.writelines(self.in_memory)
         return self.in_memory
 
     def load_from_memory(self):
@@ -82,8 +80,8 @@ class SelectableLineSaver(LineSaver):
         super().__init__(t_f)
         self.target_run = t_f + '.UniBench_config_run'
         if not os.path.isfile(self.target_run):
-            with open(self.target_run, 'w') as f:
-                pickle.dump(self.in_memory_run, f)
+            with open(self.target_run, 'w+') as f:
+                f.writelines(self.in_memory_run)
         self.in_memory_run = self.load_from_file_run()
 
     def help(self):
@@ -210,12 +208,12 @@ class SelectableLineSaver(LineSaver):
 
     def load_from_file_run(self):  # discard changes
         with open(self.target_run, 'r') as f:
-            self.in_memory_run = pickle.load(f)
+            self.in_memory_run = f.readlines()
         return self.in_memory_run
 
     def write_back_run(self):
         with open(self.target_run, 'w+') as f:
-            pickle.dump(self.in_memory_run, f)
+            f.writelines(self.in_memory_run)
         return self.in_memory_run
 
     def load_from_memory_run(self):
