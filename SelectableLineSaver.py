@@ -1,10 +1,9 @@
-import subprocess
-
 import LineSaver
 from pathlib import Path
 import pickle
 import os
 import re
+from subprocess import PIPE, Popen, STDOUT
 
 
 class SelectableLineSaver(LineSaver):
@@ -80,13 +79,22 @@ class SelectableLineSaver(LineSaver):
         self.write_back_run()
 
     def exec(self, com_nr, respond_keys):
-        cmd = self.load_from_file()
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        # SHA Ziel ordner und repository universell einrichten, dass es herunterlädt
+        cmd = (self.load_from_file()[com_nr]).split(' ')
+        process = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
         process.wait()
         out = []
-        for line in process.stdout:
-            out.append(line)
+
+        while True:
+            for line in process.stdout:
+                out.append(line)
+            if len(out) == 0:
+                break
+            for key in respond_keys:
+                if out[0].startswith(key):
+                    out = []
+                    process.communicate(input=respond_keys[key] + '\n')
+                    process.wait()
+                    break
 
     def configure(self, cmd_list, respond_keys):
         count = 1
@@ -94,7 +102,6 @@ class SelectableLineSaver(LineSaver):
             self.append(c)
             self.append_run(count)
             count += 1
-        self.write_back_run()
         self.help()
         self.status()
         while True:

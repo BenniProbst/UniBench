@@ -12,6 +12,7 @@ class Revision:
     working_directory = None
 
     def cmd_git(self, program_url, project_path, project_name, git_branch, git_code):
+        # SHA Ziel ordner und repository universell einrichten, dass es herunterlädt
         commands = []
         cmd1 = ['git', 'clone', '-n', program_url,
                 project_path + '/' + project_name + '-' + git_branch + '-' + git_code]
