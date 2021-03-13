@@ -1,7 +1,10 @@
+import subprocess
+
 import LineSaver
 from pathlib import Path
 import pickle
 import os
+import re
 
 
 class SelectableLineSaver(LineSaver):
@@ -70,7 +73,22 @@ class SelectableLineSaver(LineSaver):
             for n in run_numbers:
                 self.append_run(n)
 
-    def configure(self, cmd_list):
+    def save_run(self, com):
+        re.compile('[[0-9]+^,]+', com)
+        char_ref = re.findall('[0-9]+', com)
+        self.in_memory_run[0] = ",".join(char_ref)
+        self.write_back_run()
+
+    def exec(self, com_nr, respond_keys):
+        cmd = self.load_from_file()
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        # SHA Ziel ordner und repository universell einrichten, dass es herunterlädt
+        process.wait()
+        out = []
+        for line in process.stdout:
+            out.append(line)
+
+    def configure(self, cmd_list, respond_keys):
         count = 1
         for c in cmd_list:
             self.append(c)
@@ -92,9 +110,24 @@ class SelectableLineSaver(LineSaver):
                 except Exception:
                     print('Removing command(s) failed!')
             elif com.startswith('save_run'):
-                pass
+                try:
+                    self.save_run(com)
+                except Exception:
+                    print("Could not read the sequence!")
             elif com.startswith('run'):
-                pass
+                try:
+                    re.compile('[[0-9]+^,]+', com)
+                    char_ref = re.findall('[0-9]+', com)
+                    for c in char_ref:
+                        if c > len(self.in_memory):
+                            raise ValueError
+                    for c in char_ref:
+                        self.exec(c, respond_keys)
+                    break
+                except ValueError:
+                    print('A number could not be called from the list!')
+                except Exception:
+                    print("Configured Expression could not be run! Please reconfigure...")
             elif com.startswith('help'):
                 self.help()
             else:
