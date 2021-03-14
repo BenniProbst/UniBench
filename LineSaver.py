@@ -63,7 +63,7 @@ class LineSaver:
         self.in_memory.insert(index, thing)
         self.write_back()
 
-    def remove(self, index):
+    def rem(self, index):
         self.in_memory = self.load_from_file()
         self.in_memory.remove(index)
         # if len(self.in_memory) == 0:
@@ -153,8 +153,8 @@ class SelectableLineSaver(LineSaver):
         multi_com = st.split(',')
         for m in multi_com:
             to_del = int(m)
-            self.remove(to_del)
-            run_config = self.in_memory_run[0].split(',')
+            self.rem(self.load_from_file()[to_del - 1])
+            run_config = self.in_memory_run.split(',')
             run_numbers = []
             for r in run_config:
                 if int(r) != to_del:
@@ -185,9 +185,8 @@ class SelectableLineSaver(LineSaver):
         if not self.exists(self.load_from_file()[index]):
             print('The selected replace command was not found! No changes done.')
             return self.in_memory
-        self.remove_config('remove ' + str(index))
+        self.rem(index)
         self.insert(command_only, index)
-        self.append_run(index)
 
     def save_run(self, com):
         re.compile('^[0-9]+(,[0-9]+)*$')
@@ -227,7 +226,7 @@ class SelectableLineSaver(LineSaver):
                     print('Removing command(s) failed!')
             elif com.startswith('insert'):
                 try:
-                    self.replace_config(com)
+                    self.insert_config(com)
                     self.status()
                 except Exception:
                     print('Removing command(s) failed!')

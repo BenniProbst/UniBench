@@ -64,7 +64,7 @@ class Revision:
                         revision_output_folder = [project_path + '/' + project_name + '-' + git_branch + '-' + git_code]
                         if revisions_line.exists(revision_output_folder[0]):
                             shutil.rmtree(revision_output_folder[0])
-                            revisions_line.remove(revision_output_folder[0])
+                            revisions_line.rem(revision_output_folder[0])
                         if not os.path.isdir(revision_output_folder[0]):
                             os.makedirs(revision_output_folder[0])
                         os.chdir(revision_output_folder[0])
@@ -168,15 +168,15 @@ class Revision:
                 project_path = WorkPath.WorkPath('project').out()
             if not self.revision_setups_line.is_empty() and source_count == 0:
                 rep = input(
-                    'The configuration file' + self.revision_setups_line.target_file + 'already exists. Do you want '
-                                                                                       'to replace it with a new '
-                                                                                       'configuration? (y/n)')
+                    'The configuration file ' + self.revision_setups_line.target_file + ' already exists. Do you want '
+                                                                                        'to replace it with a new '
+                                                                                        'configuration? (y/n)')
                 while not (rep == 'y' or rep == 'n'):
                     print('What did you say?')
                     rep = input(
-                        'The configuration file' + self.revision_setups_line.target_file + 'already exists. Do you '
-                                                                                           'want to replace it with a'
-                                                                                           ' new configuration? (y/n)')
+                        'The configuration file ' + self.revision_setups_line.target_file + ' already exists. Do you '
+                                                                                            'want to replace it with a'
+                                                                                            ' new configuration? (y/n)')
                 if rep == 'y':
                     self.revision_setups_line.reset()
                     self.revision_setups_line.append(project_path)
