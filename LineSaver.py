@@ -111,9 +111,11 @@ class SelectableLineSaver(LineSaver):
     def help(self):
         print('AUTOMATION COMMAND - HELP CENTER:')
         print('add \"command\" - add an executable command line')
-        print('remove index - remove an executable command line from list above')
         print('add \"command\";\"command\",... - add multiple executable command lines')
+        print('remove index - remove an executable command line from list above')
         print('remove index,index,... - remove multiple executable command lines from list above.')
+        print('insert index \"command\" - inserts command at an index spot')
+        print('replace index \"command\" - removes and inserts command at an index spot')
         print('save_run index,index,... - save run order of commands above, save 0 to run nothing')
         print('exit - exit git revision setup')
         print('help - print help once again\n')
@@ -146,8 +148,8 @@ class SelectableLineSaver(LineSaver):
             count += 1
         return self.in_memory
 
-    def remove_config(self, index_str):
-        st = index_str[7:]
+    def remove_config(self, com):
+        st = com[7:]
         multi_com = st.split(',')
         for m in multi_com:
             to_del = int(m)
@@ -164,6 +166,28 @@ class SelectableLineSaver(LineSaver):
             self.write_back_run()
             for n in run_numbers:
                 self.append_run(n)
+        return self.in_memory
+
+    def insert_config(self, com):
+        st = com[6:]
+        index = int(st.split(' ')[0])
+        command_only = st[(len(str(index)) + 1):]
+        if not self.exists(self.load_from_file()[index]):
+            print('The selected insert command was not found! No changes done.')
+            return self.in_memory
+        self.insert(command_only, index)
+        self.append_run(index)
+
+    def replace_config(self, com):
+        st = com[8:]
+        index = int(st.split(' ')[0])
+        command_only = st[(len(str(index)) + 1):]
+        if not self.exists(self.load_from_file()[index]):
+            print('The selected replace command was not found! No changes done.')
+            return self.in_memory
+        self.remove_config('remove ' + str(index))
+        self.insert(command_only, index)
+        self.append_run(index)
 
     def save_run(self, com):
         re.compile('^[0-9]+(,[0-9]+)*$')
@@ -198,6 +222,18 @@ class SelectableLineSaver(LineSaver):
             elif com.startswith('remove'):
                 try:
                     self.remove_config(com)
+                    self.status()
+                except Exception:
+                    print('Removing command(s) failed!')
+            elif com.startswith('insert'):
+                try:
+                    self.replace_config(com)
+                    self.status()
+                except Exception:
+                    print('Removing command(s) failed!')
+            elif com.startswith('replace'):
+                try:
+                    self.replace_config(com)
                     self.status()
                 except Exception:
                     print('Removing command(s) failed!')
@@ -295,7 +331,7 @@ class SelectableLineSaver(LineSaver):
 
     def exists_run(self, number):
         self.in_memory_run = self.load_from_file_run()
-        if number in self.in_memory_run.split(','):
+        if str(number) in self.in_memory_run.split(','):
             return True
         else:
             return False

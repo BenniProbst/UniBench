@@ -13,7 +13,7 @@ class Installation:
             print('----Source installation and compilation manager----')
             print('Current project source: ' + setup)
             print('please configure how a project should be compiled or build!')
-            print('Use the variable {revision} to reference to each combination of a revision folder')
+            print('Use the variable {revision} to reference to each combination of a revision folder\n')
             os.chdir(setup)
             compile_data = setup + '/compile'
             compile_line = LineSaver.SelectableLineSaver(compile_data)
