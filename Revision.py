@@ -39,13 +39,13 @@ class Revision:
             try:
                 rep = ''
                 if not revisions_line.is_empty() and revision_count == 0:
-                    rep = input('The revision configuration file' + revisions_line.target_file +
-                                'already exists. Do you want to replace it with a new configuration or add anything? '
+                    rep = input('The revision configuration file ' + revisions_line.target_file +
+                                ' already exists. Do you want to replace it with a new configuration or add anything? '
                                 '(y/n/add)')
                     while not (rep == 'y' or rep == 'n' or rep == 'add'):
                         print('What did you say?')
-                        rep = input('The revision configuration file' + revisions_line.target_file +
-                                    'already exists. Do you want to replace it with a new configuration or add '
+                        rep = input('The revision configuration file ' + revisions_line.target_file +
+                                    ' already exists. Do you want to replace it with a new configuration or add '
                                     'anything? (y/n/add)')
                     if rep == 'y':
                         revisions_line.reset()
@@ -90,14 +90,14 @@ class Revision:
                     console_config = LineSaver.SelectableLineSaver(command_saver_path)
 
                     if not console_config.is_empty_run():
-                        rep = input('The revision run configuration file' + console_config.target_file +
-                                    ' and its run configuration' + console_config.target_run +
-                                    'already exists. Do you want to replace it with a new configuration? (y/n)')
+                        rep = input('The revision run configuration file ' + console_config.target_file +
+                                    ' and its run configuration ' + console_config.target_run +
+                                    ' already exists. Do you want to replace it with a new configuration? (y/n)')
                         while not (rep == 'y' or rep == 'n'):
                             print('What did you say?')
-                            rep = input('The revision run configuration file' + console_config.target_file +
-                                        ' and its run configuration' + console_config.target_run +
-                                        'already exists. Do you want to replace it with a new configuration? (y/n)')
+                            rep = input('The revision run configuration file ' + console_config.target_file +
+                                        ' and its run configuration ' + console_config.target_run +
+                                        ' already exists. Do you want to replace it with a new configuration? (y/n)')
                         if rep == 'y':
                             console_config.reset_run()
                             console_config.configure(commands)

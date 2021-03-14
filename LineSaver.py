@@ -16,6 +16,7 @@ class LineSaver:
         if not os.path.isfile(self.target_file):
             with open(self.target_file, 'w+') as f:
                 f.writelines(self.in_memory)
+        self.load_from_file()
 
     def load_from_file(self):  # discard changes
         with open(self.target_file, 'r') as f:
@@ -94,6 +95,7 @@ class LineSaver:
         else:
             return False
 
+
 class SelectableLineSaver(LineSaver):
     target_run = os.path.expanduser("~") + '/noname.UniBench_config_run'
     in_memory_run = '0'
@@ -104,6 +106,7 @@ class SelectableLineSaver(LineSaver):
         if not os.path.isfile(self.target_run):
             with open(self.target_run, 'w+') as f:
                 f.write(self.in_memory_run)
+        self.load_from_file_run()
 
     def help(self):
         print('AUTOMATION COMMAND - HELP CENTER:')
