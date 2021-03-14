@@ -22,12 +22,10 @@ class Revision:
     def revision_setup(self, program_url, username, password, project_path, project_name):
         print('---Revision setup---')
         if not os.path.isdir(project_path):
-            print('Pfad existiert nicht und wird erstellt: \n' + project_path)
-        if not os.path.isdir(project_path + '/' + project_name):
-            print('Pfad existiert nicht und wird erstellt: \n' + project_path + '/' + project_name)
-        self.revision_setups_line.append(project_path)
+            print('Path does not exist and will be created: \n' + project_path)
         if not os.path.isdir(project_path):
             os.makedirs(project_path)
+        self.revision_setups_line.append(project_path)
         os.chdir(project_path)
         local_saver_path = project_path + '/revisions'
         revisions_line = LineSaver.LineSaver(local_saver_path)
@@ -41,7 +39,8 @@ class Revision:
                 os.makedirs(revision_output_folder)
             os.chdir(revision_output_folder)
             try:
-                console_config = LineSaver.SelectableLineSaver(revision_output_folder)
+                command_saver_path = revision_output_folder + '/commands'
+                console_config = LineSaver.SelectableLineSaver(command_saver_path)
                 console_config.configure(commands, login_keys)
                 revisions_line.append(revision_output_folder)
                 os.chdir(project_path)
@@ -78,8 +77,8 @@ class Revision:
         saver_path = work_dir + '/revision_setups'
         self.revision_setups_line = LineSaver.LineSaver(saver_path)
         print('-----Revision setup-----')
-        print('WARNING: ALL GIVEN SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE TEST '
-              'PROPERTIES!!!')
+        print('WARNING: ALL WORKING SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE '
+              'TEST PROPERTIES!!!')
         while True:
             print('----Online source setup----')
             print('Set platform login:')
@@ -100,12 +99,8 @@ class Revision:
                     + project_path)
                 use_default_project_name = input('Do you want to use the default path for revision enrollment inside '
                                                  'of that directory? (y/n)')
-                if use_default_project_name == 'n':
-                    project_path = WorkPath.WorkPath('project').out()
-                    if not os.path.isdir(project_path):
-                        print('An Error occured! Project path could not be set. Please try again!')
-                        project_path = self.working_directory + '/' + project_name
-                        use_default_project_name = ''
+            if use_default_project_name == 'n':
+                project_path = WorkPath.WorkPath('project').out()
 
             self.revision_setup(program_url, username, password, project_path, project_name)
             rep = input('Add another revision source? (y/n)')

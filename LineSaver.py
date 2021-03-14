@@ -6,7 +6,7 @@ from pathlib import Path
 
 class LineSaver:
     target_file = os.path.expanduser("~") + '/noname.UniBench_config'
-    in_memory = ['']
+    in_memory = []
 
     def __init__(self, t_f):
         self.target_file = t_f + '.UniBench_config'
@@ -36,53 +36,52 @@ class LineSaver:
 
     def append(self, thing):
         self.in_memory = self.load_from_file()
-        if len(self.in_memory) == 1 and self.in_memory[0] == '':
-            self.in_memory = []
+        # if len(self.in_memory) == 1 and self.in_memory[0] == '':
+        # self.in_memory = []
         self.in_memory.append(thing)
         self.write_back()
 
     def append_list(self, listing):
         self.in_memory = self.load_from_file()
-        if len(self.in_memory) == 1 and self.in_memory[0] == '':
-            self.in_memory = []
+        # if len(self.in_memory) == 1 and self.in_memory[0] == '':
+        # self.in_memory = []
         for i in listing:
             self.in_memory.append(i)
         self.write_back()
 
     def insert(self, thing, index):
         self.in_memory = self.load_from_file()
-        if len(self.in_memory) == 1 and self.in_memory[0] == '':
-            self.in_memory = []
+        # if len(self.in_memory) == 1 and self.in_memory[0] == '':
+        # self.in_memory = []
         self.in_memory.insert(index, thing)
         self.write_back()
 
     def remove(self, index):
         self.in_memory = self.load_from_file()
         self.in_memory.remove(index)
-        if len(self.in_memory) == 0:
-            self.in_memory = ['']
+        # if len(self.in_memory) == 0:
+        # .in_memory = ['']
         self.write_back()
 
     def remove_list(self, listing):
         self.in_memory = self.load_from_file()
         for i in listing:
             self.in_memory.remove(i)
-        if len(self.in_memory) == 0:
-            self.in_memory = ['']
+        # if len(self.in_memory) == 0:
+        # self.in_memory = ['']
         self.write_back()
 
 
 class SelectableLineSaver(LineSaver):
     target_run = os.path.expanduser("~") + '/noname.UniBench_config_run'
-    in_memory_run = ['']
+    in_memory_run = '0'
 
     def __init__(self, t_f):
         super().__init__(t_f)
         self.target_run = t_f + '.UniBench_config_run'
         if not os.path.isfile(self.target_run):
             with open(self.target_run, 'w+') as f:
-                f.writelines(self.in_memory_run)
-        self.in_memory_run = self.load_from_file_run()
+                f.write(self.in_memory_run)
 
     def help(self):
         print('HELP:')
@@ -105,18 +104,18 @@ class SelectableLineSaver(LineSaver):
             for i in self.in_memory:
                 print(str(count) + ': \"' + str(i) + '\"')
                 count += 1
-        if len(self.in_memory_run) == 0:
+        if self.in_memory_run == '0':
             print('No saved run order. Please configure!')
         else:
             print('\n')
             print('Run order:')
-            print(self.in_memory_run[0])
+            print(self.in_memory_run)
 
     def add(self, com):
         st = com.removeprefix('add ')
         multi_com = st.split(',')
         for m in multi_com:
-            self.append(m.replace('\"', ''))
+            self.append(m.strip('\"'))
         return self.in_memory
 
     def remove_config(self, index_str):
@@ -133,7 +132,7 @@ class SelectableLineSaver(LineSaver):
             for n in run_numbers:
                 if n >= to_del:
                     n -= 1
-            self.in_memory_run[0] = ''
+            self.in_memory_run = ''
             self.write_back_run()
             for n in run_numbers:
                 self.append_run(n)
@@ -141,7 +140,7 @@ class SelectableLineSaver(LineSaver):
     def save_run(self, com):
         re.compile('^[0-9]+(,[0-9]+)*$')
         char_ref = re.findall('[0-9]+', com)
-        self.in_memory_run[0] = ",".join(char_ref)
+        self.in_memory_run = ",".join(char_ref)
         self.write_back_run()
 
     def exec(self, com_nr, respond_keys):
@@ -208,12 +207,12 @@ class SelectableLineSaver(LineSaver):
 
     def load_from_file_run(self):  # discard changes
         with open(self.target_run, 'r') as f:
-            self.in_memory_run = f.readlines()
+            self.in_memory_run = f.readlines()[0].strip('\n')
         return self.in_memory_run
 
     def write_back_run(self):
         with open(self.target_run, 'w+') as f:
-            f.writelines(self.in_memory_run)
+            f.writelines([self.in_memory_run])
         return self.in_memory_run
 
     def load_from_memory_run(self):
@@ -224,18 +223,52 @@ class SelectableLineSaver(LineSaver):
 
     def append_run(self, number):
         self.load_from_file_run()
-        if len(self.in_memory_run[0]) == 0:
-            self.in_memory_run[0] += str(number)
+        if self.in_memory_run == '0':
+            self.in_memory_run = ''
+        if len(self.in_memory_run) == 0:
+            self.in_memory_run += str(number)
         else:
-            self.in_memory_run[0] += ',' + str(number)
+            self.in_memory_run += ',' + str(number)
         self.write_back_run()
+        return self.in_memory_run
 
-    def insert_run(self, thing, index):
+    def insert_run(self, number, index):
         self.in_memory_run = self.load_from_file_run()
-        self.in_memory_run.insert(index, thing)
+        if index > len(self.in_memory_run.split(',')):
+            print('insert_run: Index out of range! No changes committed.')
+            return self.in_memory_run
+        if self.in_memory_run == '0':
+            self.in_memory_run = ''
+        if len(self.in_memory_run) == 0:
+            self.in_memory_run += str(number)
+        else:
+            self.in_memory_run += ',' + str(number)
+        change_list = self.in_memory_run.split(',')
+        change_list[int(index)] = number
+        self.in_memory_run = ''
+        count = 0
+        for m in change_list:
+            if count == 0:
+                self.in_memory_run += str(m)
+            else:
+                self.in_memory_run += ',' + str(m)
+            count += 1
         self.write_back_run()
+        return self.in_memory_run
 
     def remove_run(self, index):
         self.in_memory_run = self.load_from_file_run()
-        self.in_memory_run.remove(index)
+        if index > len(self.in_memory_run.split(',')):
+            print('remove_run: Index out of range! No changes committed.')
+            return self.in_memory_run
+        change_list = self.in_memory_run.split(',')
+        count = 0
+        for m in change_list:
+            if index != count:
+                if count == 0:
+                    self.in_memory_run += str(m)
+                else:
+                    self.in_memory_run += ',' + str(m)
+            count += 1
         self.write_back_run()
+        return self.in_memory_run
