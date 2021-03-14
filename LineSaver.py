@@ -102,7 +102,7 @@ class SelectableLineSaver(LineSaver):
         print('AUTOMATION COMMAND - HELP CENTER:')
         print('add \"command\" - add an executable command line')
         print('remove index - remove an executable command line from list above')
-        print('add \"command\",\"command\",... - add multiple executable command lines')
+        print('add \"command\";\"command\",... - add multiple executable command lines')
         print('remove index,index,... - remove multiple executable command lines from list above.')
         print('save_run index,index,... - save run order of commands above, save 0 to run nothing')
         print('exit - exit git revision setup')
@@ -127,10 +127,13 @@ class SelectableLineSaver(LineSaver):
             print(self.in_memory_run)
 
     def add(self, com):
-        st = com.removeprefix('add ')
-        multi_com = st.split(',')
+        st = com[4:]
+        multi_com = st.split(';')
+        count = 1
         for m in multi_com:
-            self.append(m.strip('\"'))
+            self.append(m)
+            count += 1
+        self.append_run(count)
         return self.in_memory
 
     def remove_config(self, index_str):
@@ -179,11 +182,13 @@ class SelectableLineSaver(LineSaver):
             if com.startswith('add'):
                 try:
                     self.add(com)
+                    self.status()
                 except Exception:
                     print('Adding command(s) failed!')
             elif com.startswith('remove'):
                 try:
                     self.remove_config(com)
+                    self.status()
                 except Exception:
                     print('Removing command(s) failed!')
             elif com.startswith('save_run'):
