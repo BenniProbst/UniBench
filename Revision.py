@@ -68,6 +68,7 @@ class Revision:
                             os.makedirs(revision_output_folder[0])
                         os.chdir(revision_output_folder[0])
                         revisions_line.append(revision_output_folder[0])
+                        revision_output_folder = revisions_line.load_from_file()
                     elif rep == 'n':
                         os.chdir(project_path)
                         revision_output_folder = revisions_line.load_from_file()
@@ -84,7 +85,7 @@ class Revision:
                 # for loop action check
                 for rev in revision_output_folder:
                     print('--Revision command checker--')
-                    command_saver_path = rev + '/commands'
+                    command_saver_path = rev + '/git_commands'
                     console_config = LineSaver.SelectableLineSaver(command_saver_path)
 
                     if not console_config.is_empty_run():
