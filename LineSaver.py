@@ -153,23 +153,24 @@ class SelectableLineSaver(LineSaver):
         multi_com = st.split(',')
         for m in multi_com:
             to_del = int(m)
+            self.remove_run(to_del)
             self.rem(self.load_from_file()[to_del - 1])
-            self.remove_run(m)
         return self.in_memory
 
     def insert_config(self, com):
-        st = com[6:]
-        index = int(st.split(' ')[0])
+        st = com[7:]
+        split_cmd = st.split(' ')
+        index = int(split_cmd[0])
         command_only = st[(len(str(index)) + 1):]
-        if not self.exists(self.load_from_file()[index]):
+        if not self.exists(self.load_from_file()[index - 1]):
             print('The selected insert command was not found! No changes done.')
             return self.in_memory
-        self.insert(command_only, index)
+        self.insert(command_only, index - 1)
         split_mem_run = [int(i) for i in self.load_from_file_run().split(',')]
-        self.in_memory_run = ''
+        self.in_memory_run = '0'
         self.write_back_run()
         for i in split_mem_run:
-            if i > index:
+            if i >= index:
                 i += 1
             self.append_run(i)
 
@@ -177,11 +178,11 @@ class SelectableLineSaver(LineSaver):
         st = com[8:]
         index = int(st.split(' ')[0])
         command_only = st[(len(str(index)) + 1):]
-        if not self.exists(self.load_from_file()[index]):
+        if not self.exists(self.load_from_file()[index - 1]):
             print('The selected replace command was not found! No changes done.')
             return self.in_memory
-        self.rem(index)
-        self.insert(command_only, index)
+        self.rem(self.load_from_file()[index - 1])
+        self.insert(command_only, index - 1)
 
     def save_run(self, com):
         re.compile('^[0-9]+(,[0-9]+)*$')
@@ -298,7 +299,7 @@ class SelectableLineSaver(LineSaver):
     def remove_run(self, index):
         self.in_memory_run = self.load_from_file_run()
         split_mem = self.in_memory_run.split(',')
-        if index > len(split_mem):
+        if int(index) > len(self.in_memory):
             print('remove_run: Index out of range! No changes committed.')
             return self.in_memory_run
         run_numbers = []
@@ -309,7 +310,7 @@ class SelectableLineSaver(LineSaver):
         for n in run_numbers:
             if n >= index:
                 run_numbers_filtered.append(n - 1)
-        self.save_to_memory_run('')
+        self.save_to_memory_run('0')
         self.write_back_run()
         for n in run_numbers_filtered:
             self.append_run(n)
