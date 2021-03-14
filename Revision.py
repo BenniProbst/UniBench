@@ -31,48 +31,78 @@ class Revision:
         login_keys = {'Username:': username, 'Password:': password}
         revision_count = 0
         while True:
-            git_branch = input('Git branch: ')
-            git_code = input('Git revision SHA: ')
-            commands = self.cmd_git(program_url, project_path, project_name, git_branch, git_code)
-            revision_output_folder = project_path + '/' + project_name + '-' + git_branch + '-' + git_code
-            if not os.path.isdir(revision_output_folder):
-                os.makedirs(revision_output_folder)
-            os.chdir(revision_output_folder)
+            git_branch = ''
+            git_code = ''
+            commands = []
+            revision_output_folder = ['']
             try:
                 rep = ''
                 if not revisions_line.is_empty() and revision_count == 0:
-                    rep = input(
-                        'The revision configuration file' + revisions_line.target_file +
-                        'already exists. Do you want to replace it with a new configuration? (y/n)')
-                    while not (rep == 'y' or rep == 'n'):
+                    rep = input('The revision configuration file' + revisions_line.target_file +
+                                'already exists. Do you want to replace it with a new configuration or add anything? '
+                                '(y/n/add)')
+                    while not (rep == 'y' or rep == 'n' or rep == 'add'):
                         print('What did you say?')
-                        rep = input(
-                            'The revision configuration file' + revisions_line.target_file +
-                            'already exists. Do you want to replace it with a new configuration? (y/n)')
+                        rep = input('The revision configuration file' + revisions_line.target_file +
+                                    'already exists. Do you want to replace it with a new configuration or add '
+                                    'anything? (y/n/add)')
                     if rep == 'y':
                         revisions_line.reset()
-                        revisions_line.append(revision_output_folder)
+                        git_branch = input('Git branch: ')
+                        git_code = input('Git revision SHA: ')
+                        commands = self.cmd_git(program_url, project_path, project_name, git_branch, git_code)
+                        revision_output_folder = [project_path + '/' + project_name + '-' + git_branch + '-' + git_code]
+                        if not os.path.isdir(revision_output_folder[0]):
+                            os.makedirs(revision_output_folder[0])
+                        os.chdir(revision_output_folder[0])
+                        revisions_line.append(revision_output_folder[0])
+                    elif rep == 'add':
+                        git_branch = input('Git branch: ')
+                        git_code = input('Git revision SHA: ')
+                        commands = self.cmd_git(program_url, project_path, project_name, git_branch, git_code)
+                        revision_output_folder = [project_path + '/' + project_name + '-' + git_branch + '-' + git_code]
+                        if revisions_line.exists(revision_output_folder[0]):
+                            shutil.rmtree(revision_output_folder[0])
+                            revisions_line.remove(revision_output_folder[0])
+                        if not os.path.isdir(revision_output_folder[0]):
+                            os.makedirs(revision_output_folder[0])
+                        os.chdir(revision_output_folder[0])
+                        revisions_line.append(revision_output_folder[0])
+                    elif rep == 'n':
+                        os.chdir(project_path)
+                        revision_output_folder = revisions_line.load_from_file()
+                        break
                 else:
-                    revisions_line.append(revision_output_folder)
-                command_saver_path = revision_output_folder + '/commands'
-                console_config = LineSaver.SelectableLineSaver(command_saver_path)
+                    git_branch = input('Git branch: ')
+                    git_code = input('Git revision SHA: ')
+                    commands = self.cmd_git(program_url, project_path, project_name, git_branch, git_code)
+                    revision_output_folder = [project_path + '/' + project_name + '-' + git_branch + '-' + git_code]
+                    if not os.path.isdir(revision_output_folder[0]):
+                        os.makedirs(revision_output_folder[0])
+                    os.chdir(revision_output_folder[0])
+                    revisions_line.append(revision_output_folder[0])
+                # for loop action check
+                for rev in revision_output_folder:
+                    print('--Revision command checker--')
+                    command_saver_path = rev + '/commands'
+                    console_config = LineSaver.SelectableLineSaver(command_saver_path)
 
-                if not console_config.is_empty_run():
-                    rep = input('The revision run configuration file' + console_config.target_file +
-                                ' and its run configuration' + console_config.target_run +
-                                'already exists. Do you want to replace it with a new configuration? (y/n)')
-                    while not (rep == 'y' or rep == 'n'):
-                        print('What did you say?')
+                    if not console_config.is_empty_run():
                         rep = input('The revision run configuration file' + console_config.target_file +
                                     ' and its run configuration' + console_config.target_run +
                                     'already exists. Do you want to replace it with a new configuration? (y/n)')
-                    if rep == 'y':
-                        console_config.reset_run()
+                        while not (rep == 'y' or rep == 'n'):
+                            print('What did you say?')
+                            rep = input('The revision run configuration file' + console_config.target_file +
+                                        ' and its run configuration' + console_config.target_run +
+                                        'already exists. Do you want to replace it with a new configuration? (y/n)')
+                        if rep == 'y':
+                            console_config.reset_run()
+                            console_config.configure(commands, login_keys)
+                    else:
                         console_config.configure(commands, login_keys)
-                else:
-                    console_config.configure(commands, login_keys)
+                    revision_count += 1
 
-                revision_count += 1
                 os.chdir(project_path)
                 rep = input('Add another revision code for testing? (y/n)')
                 while not (rep == 'y' or rep == 'n'):
@@ -83,7 +113,7 @@ class Revision:
             except Exception:
                 print('Something went wrong! Deleting half finished revision folder!')
                 os.chdir(project_path)
-                shutil.rmtree(revision_output_folder)
+                shutil.rmtree(revision_output_folder[revision_count])
                 if len(revisions_line.load_from_memory()) > 0:
                     rep = input('To correct the error type \'y\', to exit type \'n\'. (y/n)')
                     while not (rep == 'y' or rep == 'n'):

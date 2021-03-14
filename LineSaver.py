@@ -87,6 +87,13 @@ class LineSaver:
         self.in_memory = []
         self.write_back()
 
+    def exists(self, cmd):
+        self.in_memory = self.load_from_file()
+        if cmd in self.in_memory:
+            return True
+        else:
+            return False
+
 class SelectableLineSaver(LineSaver):
     target_run = os.path.expanduser("~") + '/noname.UniBench_config_run'
     in_memory_run = '0'
@@ -129,15 +136,15 @@ class SelectableLineSaver(LineSaver):
     def add(self, com):
         st = com[4:]
         multi_com = st.split(';')
-        count = 1
+        count = 1 + len(self.in_memory)
         for m in multi_com:
             self.append(m)
+            self.append_run(count)
             count += 1
-        self.append_run(count)
         return self.in_memory
 
     def remove_config(self, index_str):
-        st = index_str.removeprefix('remove ')
+        st = index_str[7:]
         multi_com = st.split(',')
         for m in multi_com:
             to_del = int(m)
@@ -282,3 +289,10 @@ class SelectableLineSaver(LineSaver):
         self.reset()
         self.in_memory_run = '0'
         self.write_back_run()
+
+    def exists_run(self, number):
+        self.in_memory_run = self.load_from_file_run()
+        if number in self.in_memory_run.split(','):
+            return True
+        else:
+            return False

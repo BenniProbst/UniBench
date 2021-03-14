@@ -14,14 +14,20 @@ class WorkPath:
         new_dir = None
         while True:
             try:
-                work_in = input("Work directory:")
+                work_in = input("Working directory:")
                 if len(work_in) == 0:
                     new_dir = None
                 else:
                     new_dir = os.path.realpath(work_in)
                 break
+            except FileNotFoundError:
+                print('Directory was not found!')
+            except NotADirectoryError:
+                print('The given path was not a directory!')
+            except PermissionError:
+                print('You do not have permissions to use anything here! Use the full path!')
             except Exception:
-                print('Invalid Syntax! Please try again...')
+                print('Undefined Error!')
         while not (new_dir is None) and not os.path.exists(new_dir):
             print("An Error occured. This may not be a valid path!")
             print(new_dir)
@@ -31,6 +37,15 @@ class WorkPath:
                 if create == 'y':
                     try:
                         os.makedirs(new_dir)
+                    except FileNotFoundError:
+                        print('Directory was not found!')
+                        create = 'n'
+                    except NotADirectoryError:
+                        print('The given path was not a directory!')
+                        create = 'n'
+                    except PermissionError:
+                        print('You do not have permissions to create anything here! Use the full path!')
+                        create = 'n'
                     except Exception:
                         print('File could not be created! Try again...')
                         create = 'n'
