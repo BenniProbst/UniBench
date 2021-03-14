@@ -38,7 +38,7 @@ class LineSaver:
         self.in_memory = self.load_from_file()
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
-        self.in_memory.append(thing)
+        self.in_memory.append(thing + '\n')
         self.write_back()
 
     def append_list(self, listing):
@@ -46,14 +46,14 @@ class LineSaver:
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
         for i in listing:
-            self.in_memory.append(i)
+            self.in_memory.append(i + '\n')
         self.write_back()
 
     def insert(self, thing, index):
         self.in_memory = self.load_from_file()
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
-        self.in_memory.insert(index, thing)
+        self.in_memory.insert(index, thing + '\n')
         self.write_back()
 
     def remove(self, index):
