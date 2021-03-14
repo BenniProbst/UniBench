@@ -63,9 +63,9 @@ class LineSaver:
         self.in_memory.insert(index, thing)
         self.write_back()
 
-    def rem(self, index):
+    def rem(self, com):
         self.in_memory = self.load_from_file()
-        self.in_memory.remove(index)
+        self.in_memory.remove(com)
         # if len(self.in_memory) == 0:
         # .in_memory = ['']
         self.write_back()
@@ -154,18 +154,7 @@ class SelectableLineSaver(LineSaver):
         for m in multi_com:
             to_del = int(m)
             self.rem(self.load_from_file()[to_del - 1])
-            run_config = self.in_memory_run.split(',')
-            run_numbers = []
-            for r in run_config:
-                if int(r) != to_del:
-                    run_numbers.append(int(r))
-            for n in run_numbers:
-                if n >= to_del:
-                    n -= 1
-            self.in_memory_run = ''
-            self.write_back_run()
-            for n in run_numbers:
-                self.append_run(n)
+            self.remove_run(m)
         return self.in_memory
 
     def insert_config(self, com):
@@ -176,7 +165,13 @@ class SelectableLineSaver(LineSaver):
             print('The selected insert command was not found! No changes done.')
             return self.in_memory
         self.insert(command_only, index)
-        self.append_run(index)
+        split_mem_run = [int(i) for i in self.load_from_file_run().split(',')]
+        self.in_memory_run = ''
+        self.write_back_run()
+        for i in split_mem_run:
+            if i > index:
+                i += 1
+            self.append_run(i)
 
     def replace_config(self, com):
         st = com[8:]
@@ -302,19 +297,22 @@ class SelectableLineSaver(LineSaver):
 
     def remove_run(self, index):
         self.in_memory_run = self.load_from_file_run()
-        if index > len(self.in_memory_run.split(',')):
+        split_mem = self.in_memory_run.split(',')
+        if index > len(split_mem):
             print('remove_run: Index out of range! No changes committed.')
             return self.in_memory_run
-        change_list = self.in_memory_run.split(',')
-        count = 0
-        for m in change_list:
-            if index != count:
-                if count == 0:
-                    self.in_memory_run += str(m)
-                else:
-                    self.in_memory_run += ',' + str(m)
-            count += 1
+        run_numbers = []
+        run_numbers_filtered = []
+        for r in split_mem:
+            if int(r) != index:
+                run_numbers.append(int(r))
+        for n in run_numbers:
+            if n >= index:
+                run_numbers_filtered.append(n - 1)
+        self.save_to_memory_run('')
         self.write_back_run()
+        for n in run_numbers_filtered:
+            self.append_run(n)
         return self.in_memory_run
 
     def is_empty_run(self):
