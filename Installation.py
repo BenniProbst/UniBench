@@ -6,7 +6,11 @@ import LineSaver
 
 
 class Installation:
-    def __init__(self, work_dir):
+    variations = {}
+    variation_configs = []
+
+    def __init__(self, work_dir, variation):
+        self.variations = variation
         os.chdir(work_dir)
         revision_setups = LineSaver.LineSaver(work_dir + '/revision_setups')
         for setup in revision_setups.load_from_file():
@@ -15,10 +19,32 @@ class Installation:
             print('please configure how a project should be compiled or build!')
             print('Use the variable {revision} to reference to each combination of a revision folder\n')
             os.chdir(setup)
-            compile_data = setup + '/compile'
+            revisions = setup + 'revisions'
+            revision_line = LineSaver.LineSaver(revisions)
+            for rev in revision_line.load_from_file():
+                print('SETTINGS TO FOLDER: ' + rev)
+                self.variate_config(setup, rev)
+        os.chdir(work_dir)
+
+    def variate_config(self, setup, rev_folder):
+        print('---Variation manager---')
+        for key in self.variations.keys():
+            print('--' + key + '--')
+            print('Hint: Delete individual configuration to use global project compilation settings! '
+                  'Individual settings are dominant!')
+            print('Replacement pad information: ' + self.variations[key]['replacements'])
+            print('Replacement pads: ' + str(self.variations[key]['variation']))
+            rep = input('Individual configuration? (y/n)')
+            while not (rep == 'y' or rep == 'n'):
+                print('What did you say?')
+                rep = input('Individual configuration? (y/n)')
+            compile_data = ''
+            if rep == 'y':
+                compile_data = rev_folder + '/' + self.variations[key]['file_name']
+            else:
+                compile_data = setup + '/' + self.variations[key]['file_name']
             compile_line = LineSaver.SelectableLineSaver(compile_data)
             compile_line.configure([])
-        os.chdir(work_dir)
 
         # install_config = FileLineController(tmp_dir,program_name + '.i_config')
         # .i_run configuration
