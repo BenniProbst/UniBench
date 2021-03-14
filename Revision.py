@@ -8,6 +8,7 @@ import shutil
 class Revision:
     revision_setups_line = None
     working_directory = None
+    pass_phrases = {}
 
     def cmd_git(self, program_url, project_path, project_name, git_branch, git_code):
         # SHA Ziel ordner und repository universell einrichten, dass es herunterlädt
@@ -19,7 +20,7 @@ class Revision:
         commands.append(cmd2)
         return commands
 
-    def revision_setup(self, program_url, username, password, project_path, project_name):
+    def revision_setup(self, program_url, project_path, project_name):
         print('---Revision setup---')
         if not os.path.isdir(project_path):
             print('Path does not exist and will be created: \n' + project_path)
@@ -28,7 +29,7 @@ class Revision:
         os.chdir(project_path)
         local_saver_path = project_path + '/revisions'
         revisions_line = LineSaver.LineSaver(local_saver_path)
-        login_keys = {'Username:': username, 'Password:': password}
+
         revision_count = 0
         while True:
             git_branch = ''
@@ -99,9 +100,9 @@ class Revision:
                                         'already exists. Do you want to replace it with a new configuration? (y/n)')
                         if rep == 'y':
                             console_config.reset_run()
-                            console_config.configure(commands, login_keys)
+                            console_config.configure(commands)
                     else:
-                        console_config.configure(commands, login_keys)
+                        console_config.configure(commands)
                     revision_count += 1
 
                 os.chdir(project_path)
@@ -138,7 +139,7 @@ class Revision:
         self.working_directory = os.path.realpath(work_dir)
         saver_path = work_dir + '/revision_setups'
         self.revision_setups_line = LineSaver.LineSaver(saver_path)
-        print('-----Revision setup-----')
+        print('-----Revision setup and prescript-----')
         print('WARNING: ALL WORKING SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE '
               'TEST PROPERTIES!!!')
         source_count = 0
@@ -148,6 +149,7 @@ class Revision:
             program_url = input('Git URL:')
             username = input('Target platform username: ')
             password = getpass.getpass(prompt='Target platform password: ')
+            self.pass_phrases[program_url] = {'Username:': username, 'Password:': password}
             project_name = self.p_name(program_url)
             project_path = self.working_directory + '/' + project_name
             print('Default main project folder, named ' + project_name + ', where sub-revisions will be stored to:\n'
@@ -180,7 +182,7 @@ class Revision:
                     self.revision_setups_line.append(project_path)
             else:
                 self.revision_setups_line.append(project_path)
-            self.revision_setup(program_url, username, password, project_path, project_name)
+            self.revision_setup(program_url, project_path, project_name)
             source_count += 1
             rep = input('Add another revision source? (y/n)')
             while not (rep == 'y' or rep == 'n'):

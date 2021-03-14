@@ -176,7 +176,7 @@ class SelectableLineSaver(LineSaver):
             print('The sequence you\'ve entered contains invalid references! No changes committed.')
         self.write_back_run()
 
-    def configure(self, cmd_list, respond_keys):
+    def configure(self, cmd_list):
         count = 1
         for c in cmd_list:
             self.append(c)

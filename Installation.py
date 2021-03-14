@@ -1,20 +1,24 @@
 import os
-
+import LineSaver
 
 # from subprocess import PIPE, Popen, STDOUT
 # import re
 
 
 class Installation:
-    def __init__(self, new_dir):
-        program_name = ''
-        while len(program_name) == 0:
-            program_name = input('Program main folder name:')
-            if len(program_name) == 0:
-                print('Program name was empty!')
-        tmp_dir = new_dir + '/' + program_name
-        if not os.path.exists(tmp_dir):
-            os.makedirs(tmp_dir)
+    def __init__(self, work_dir):
+        os.chdir(work_dir)
+        revision_setups = LineSaver.LineSaver(work_dir + '/revision_setups')
+        for setup in revision_setups.load_from_file():
+            print('----Source installation and compilation manager----')
+            print('Current project source: ' + setup)
+            print('please configure how a project should be compiled or build!')
+            print('Use the variable {revision} to reference to each combination of a revision folder')
+            os.chdir(setup)
+            compile_data = setup + '/compile'
+            compile_line = LineSaver.SelectableLineSaver(compile_data)
+            compile_line.configure([])
+        os.chdir(work_dir)
 
         # install_config = FileLineController(tmp_dir,program_name + '.i_config')
         # .i_run configuration
@@ -58,4 +62,7 @@ class Installation:
             print('A number could not be called from the list!')
         except Exception:
             print("Configured Expression could not be run! Please reconfigure...")
+    
+    login_keys = {'Username:': username, 'Password:': password}
+    
     '''
