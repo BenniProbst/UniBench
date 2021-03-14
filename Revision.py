@@ -25,11 +25,11 @@ class Revision:
             print('Path does not exist and will be created: \n' + project_path)
         if not os.path.isdir(project_path):
             os.makedirs(project_path)
-        self.revision_setups_line.append(project_path)
         os.chdir(project_path)
         local_saver_path = project_path + '/revisions'
         revisions_line = LineSaver.LineSaver(local_saver_path)
         login_keys = {'Username:': username, 'Password:': password}
+        revision_count = 0
         while True:
             git_branch = input('Git branch: ')
             git_code = input('Git revision SHA: ')
@@ -39,10 +39,40 @@ class Revision:
                 os.makedirs(revision_output_folder)
             os.chdir(revision_output_folder)
             try:
+                rep = ''
+                if not revisions_line.is_empty() and revision_count == 0:
+                    rep = input(
+                        'The revision configuration file' + revisions_line.target_file +
+                        'already exists. Do you want to replace it with a new configuration? (y/n)')
+                    while not (rep == 'y' or rep == 'n'):
+                        print('What did you say?')
+                        rep = input(
+                            'The revision configuration file' + revisions_line.target_file +
+                            'already exists. Do you want to replace it with a new configuration? (y/n)')
+                    if rep == 'y':
+                        revisions_line.reset()
+                        revisions_line.append(revision_output_folder)
+                else:
+                    revisions_line.append(revision_output_folder)
                 command_saver_path = revision_output_folder + '/commands'
                 console_config = LineSaver.SelectableLineSaver(command_saver_path)
-                console_config.configure(commands, login_keys)
-                revisions_line.append(revision_output_folder)
+
+                if not console_config.is_empty_run():
+                    rep = input('The revision run configuration file' + console_config.target_file +
+                                ' and its run configuration' + console_config.target_run +
+                                'already exists. Do you want to replace it with a new configuration? (y/n)')
+                    while not (rep == 'y' or rep == 'n'):
+                        print('What did you say?')
+                        rep = input('The revision run configuration file' + console_config.target_file +
+                                    ' and its run configuration' + console_config.target_run +
+                                    'already exists. Do you want to replace it with a new configuration? (y/n)')
+                    if rep == 'y':
+                        console_config.reset_run()
+                        console_config.configure(commands, login_keys)
+                else:
+                    console_config.configure(commands, login_keys)
+
+                revision_count += 1
                 os.chdir(project_path)
                 rep = input('Add another revision code for testing? (y/n)')
                 while not (rep == 'y' or rep == 'n'):
@@ -61,6 +91,7 @@ class Revision:
                         rep = input('To correct the error type \'y\', to exit type \'n\'. (y/n)')
                     if rep == 'n':
                         break
+        return True
 
     def p_name(self, url):
         if str(url).endswith('.git'):
@@ -79,6 +110,7 @@ class Revision:
         print('-----Revision setup-----')
         print('WARNING: ALL WORKING SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE '
               'TEST PROPERTIES!!!')
+        source_count = 0
         while True:
             print('----Online source setup----')
             print('Set platform login:')
@@ -101,8 +133,24 @@ class Revision:
                                                  'of that directory? (y/n)')
             if use_default_project_name == 'n':
                 project_path = WorkPath.WorkPath('project').out()
-
+            if not self.revision_setups_line.is_empty() and source_count == 0:
+                rep = input(
+                    'The configuration file' + self.revision_setups_line.target_file + 'already exists. Do you want '
+                                                                                       'to replace it with a new '
+                                                                                       'configuration? (y/n)')
+                while not (rep == 'y' or rep == 'n'):
+                    print('What did you say?')
+                    rep = input(
+                        'The configuration file' + self.revision_setups_line.target_file + 'already exists. Do you '
+                                                                                           'want to replace it with a'
+                                                                                           ' new configuration? (y/n)')
+                if rep == 'y':
+                    self.revision_setups_line.reset()
+                    self.revision_setups_line.append(project_path)
+            else:
+                self.revision_setups_line.append(project_path)
             self.revision_setup(program_url, username, password, project_path, project_name)
+            source_count += 1
             rep = input('Add another revision source? (y/n)')
             while not (rep == 'y' or rep == 'n'):
                 print('What did you say?')

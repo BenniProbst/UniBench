@@ -1,6 +1,5 @@
 import os
 import re
-from subprocess import PIPE, Popen, STDOUT
 from pathlib import Path
 
 
@@ -21,11 +20,18 @@ class LineSaver:
     def load_from_file(self):  # discard changes
         with open(self.target_file, 'r') as f:
             self.in_memory = f.readlines()
+        mem_refresh = []
+        for m in self.in_memory:
+            m = m.strip('\n')
+            mem_refresh.append(m)
+        self.in_memory = mem_refresh
         return self.in_memory
 
     def write_back(self):
         with open(self.target_file, 'w+') as f:
-            f.writelines(self.in_memory)
+            for m in self.in_memory:
+                m = m.strip('\n')
+                f.write(m + '\n')
         return self.in_memory
 
     def load_from_memory(self):
@@ -38,7 +44,7 @@ class LineSaver:
         self.in_memory = self.load_from_file()
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
-        self.in_memory.append(thing + '\n')
+        self.in_memory.append(thing)
         self.write_back()
 
     def append_list(self, listing):
@@ -46,14 +52,14 @@ class LineSaver:
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
         for i in listing:
-            self.in_memory.append(i + '\n')
+            self.in_memory.append(i)
         self.write_back()
 
     def insert(self, thing, index):
         self.in_memory = self.load_from_file()
         # if len(self.in_memory) == 1 and self.in_memory[0] == '':
         # self.in_memory = []
-        self.in_memory.insert(index, thing + '\n')
+        self.in_memory.insert(index, thing)
         self.write_back()
 
     def remove(self, index):
@@ -71,6 +77,15 @@ class LineSaver:
         # self.in_memory = ['']
         self.write_back()
 
+    def is_empty(self):
+        if len(self.load_from_file()) == 0:
+            return True
+        else:
+            return
+
+    def reset(self):
+        self.in_memory = []
+        self.write_back()
 
 class SelectableLineSaver(LineSaver):
     target_run = os.path.expanduser("~") + '/noname.UniBench_config_run'
@@ -84,14 +99,14 @@ class SelectableLineSaver(LineSaver):
                 f.write(self.in_memory_run)
 
     def help(self):
-        print('HELP:')
+        print('AUTOMATION COMMAND - HELP CENTER:')
         print('add \"command\" - add an executable command line')
         print('remove index - remove an executable command line from list above')
         print('add \"command\",\"command\",... - add multiple executable command lines')
         print('remove index,index,... - remove multiple executable command lines from list above.')
         print('save_run index,index,... - save run order of commands above, save 0 to run nothing')
-        print('run - run configured command order')
-        print('help - print help once again')
+        print('exit - exit git revision setup')
+        print('help - print help once again\n')
 
     def status(self):
         self.load_from_file()
@@ -140,26 +155,16 @@ class SelectableLineSaver(LineSaver):
     def save_run(self, com):
         re.compile('^[0-9]+(,[0-9]+)*$')
         char_ref = re.findall('[0-9]+', com)
-        self.in_memory_run = ",".join(char_ref)
-        self.write_back_run()
-
-    def exec(self, com_nr, respond_keys):
-        cmd = (self.load_from_file()[com_nr]).split(' ')
-        process = Popen(cmd, shell=True, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-        process.wait()
-        out = []
-
-        while True:
-            for line in process.stdout:
-                out.append(line)
-            if len(out) == 0:
+        valid = True
+        for c in char_ref:
+            if int(c) > len(self.in_memory) or int(c) < 0:
+                valid = False
                 break
-            for key in respond_keys:
-                if out[0].startswith(key):
-                    out = []
-                    process.communicate(input=respond_keys[key] + '\n')
-                    process.wait()
-                    break
+        if valid:
+            self.in_memory_run = ",".join(char_ref)
+        else:
+            print('The sequence you\'ve entered contains invalid references! No changes committed.')
+        self.write_back_run()
 
     def configure(self, cmd_list, respond_keys):
         count = 1
@@ -184,22 +189,11 @@ class SelectableLineSaver(LineSaver):
             elif com.startswith('save_run'):
                 try:
                     self.save_run(com)
+                    self.status()
                 except Exception:
                     print("Could not read the sequence!")
-            elif com.startswith('run'):
-                try:
-                    re.compile('^[0-9]+(,[0-9]+)*$')
-                    char_ref = re.findall('[0-9]+', com)
-                    for c in char_ref:
-                        if c > len(self.in_memory):
-                            raise ValueError
-                    for c in char_ref:
-                        self.exec(c, respond_keys)
-                    break
-                except ValueError:
-                    print('A number could not be called from the list!')
-                except Exception:
-                    print("Configured Expression could not be run! Please reconfigure...")
+            elif com.startswith('exit'):
+                break
             elif com.startswith('help'):
                 self.help()
             else:
@@ -272,3 +266,14 @@ class SelectableLineSaver(LineSaver):
             count += 1
         self.write_back_run()
         return self.in_memory_run
+
+    def is_empty_run(self):
+        if self.is_empty() or self.load_from_file_run() == '0':
+            return True
+        else:
+            return False
+
+    def reset_run(self):
+        self.reset()
+        self.in_memory_run = '0'
+        self.write_back_run()
