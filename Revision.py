@@ -20,14 +20,14 @@ class Revision:
         commands.append(cmd2)
         return commands
 
-    def revision_setup(self, program_url, project_path, project_name):
+    def revision_setup(self, program_url, project_path, project_name, config_file_names):
         print('---Revision setup---')
         if not os.path.isdir(project_path):
             print('Path does not exist and will be created: \n' + project_path)
         if not os.path.isdir(project_path):
             os.makedirs(project_path)
         os.chdir(project_path)
-        local_saver_path = project_path + '/revisions'
+        local_saver_path = project_path + '/' + config_file_names[1]
         revisions_line = LineSaver.LineSaver(local_saver_path)
 
         revision_count = 0
@@ -135,9 +135,9 @@ class Revision:
             url = input('Manual project name: ')
         return url
 
-    def __init__(self, work_dir):
+    def __init__(self, work_dir, config_file_names):
         self.working_directory = os.path.realpath(work_dir)
-        saver_path = work_dir + '/revision_setups'
+        saver_path = work_dir + '/' + config_file_names[0]
         self.revision_setups_line = LineSaver.LineSaver(saver_path)
         print('-----Revision setup and prescript-----')
         print('WARNING: ALL WORKING SOURCES (FOLDERS AND RECURSIVE FILES) WILL BE DELETED AN OVERWRITTEN TO UPDATE '
@@ -182,7 +182,7 @@ class Revision:
                     self.revision_setups_line.append(project_path)
             else:
                 self.revision_setups_line.append(project_path)
-            self.revision_setup(program_url, project_path, project_name)
+            self.revision_setup(program_url, project_path, project_name, config_file_names)
             source_count += 1
             rep = input('Add another revision source? (y/n)')
             while not (rep == 'y' or rep == 'n'):

@@ -8,12 +8,15 @@ import LineSaver
 
 class Installation:
     variations = {}
-    variation_configs = []
+    static_configs = []
+    variable_configs = []
 
-    def __init__(self, work_dir, variation):
+    def __init__(self, work_dir, variation, config_filenames):
         self.variations = variation
+        self.static_configs = config_filenames
         os.chdir(work_dir)
         revision_setups = LineSaver.LineSaver(work_dir + '/revision_setups')
+        # check if config hierarchy is valid, if not, configure
         for setup in revision_setups.load_from_file():
             print('----Source installation and compilation manager----')
             print('Current project source: ' + setup)
@@ -31,13 +34,28 @@ class Installation:
                   '\',\'. The last line is never empty and requires at least one \';\' for an empty argument. The '
                   'argument past this argument, which does not end with semicolon as the only argument in the row is '
                   'setting up automation key phrases (optional). For example the shell will type the password after ['
-                  'sudo], if ;{\"[sudo] \" : \"PW\"} was given in the last line. The shell detects prefixes.'
+                  'sudo], if ;{\"[sudo] \" : \"PW\"} was given in the last line. The shell detects prefixes. Hint use '
+                  'static pads like {revisions}, created by the engine to create a combination over all the '
+                  'information about the referenced configuration file. '
                   'Example before running the application: export '
                   'OMP_NUM_THREADS={threads} . Configuration in last line may look like '
                   'this: 2-6;{automation} or 1,2,3;{automation}')
             for rev in revision_line.load_from_file():
                 print('SETTINGS TO FOLDER: ' + rev)
                 self.variate_config(setup, rev)
+
+        # recursively build suite file tree, the last recursion is a test this is done by building all replacement
+        # files first into subdirectories, only copy global file one hierarchy down if there is not filename of that
+        # type within the subdirectory. This gives us complete build variation lists in our revision folders with the
+        # ending .variation_UniBench or better using memory a dict; multiline configs are separated with an empty
+        # line with a semicolon on it. first build dict in memory with a file_name connected to the list,
+        # what the file contains with copies of multiline commands, then work through static_configs, after that work
+        # through variable_configs and go one recursion deeper each time you find a another variations file to iterate
+        # over. Each recursion creates a master suite.
+        # install phoronix-test-suite tests and suites automatically with a keymap by creating variate-compatible files
+        # and finally run all tests and test suites
+        # Read test results from database and copy all important ones into the .UniBench folder Morpheus repository
+
         os.chdir(work_dir)
 
     def variate_config(self, setup, rev_folder):
@@ -59,6 +77,7 @@ class Installation:
                 compile_data = setup + '/' + self.variations[key]['file_name']
             compile_line = LineSaver.SelectableLineSaver(compile_data)
             compile_line.configure([])
+            self.variable_configs.append(self.variations[key]['file_name'])
 
         # install_config = FileLineController(tmp_dir,program_name + '.i_config')
         # .i_run configuration
