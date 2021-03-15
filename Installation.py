@@ -1,6 +1,7 @@
 import os
 import LineSaver
 
+
 # from subprocess import PIPE, Popen, STDOUT
 # import re
 
@@ -21,6 +22,19 @@ class Installation:
             os.chdir(setup)
             revisions = setup + 'revisions'
             revision_line = LineSaver.LineSaver(revisions)
+            print('Usage example: Type the thread modification command {threads} into the config file '
+                  'and type the number of test threads into the last line of the document. The last line will be '
+                  'treated differently and will not be executed. The input will be '
+                  'recombined with all combinations possible above. If configuring multiple '
+                  'variations separate argument types with \';\' in the order of their '
+                  'registration list and separate variations to that argument type with '
+                  '\',\'. The last line is never empty and requires at least one \';\' for an empty argument. The '
+                  'argument past this argument, which does not end with semicolon as the only argument in the row is '
+                  'setting up automation key phrases (optional). For example the shell will type the password after ['
+                  'sudo], if ;{\"[sudo] \" : \"PW\"} was given in the last line. The shell detects prefixes.'
+                  'Example before running the application: export '
+                  'OMP_NUM_THREADS={threads} . Configuration in last line may look like '
+                  'this: 2-6;{automation} or 1,2,3;{automation}')
             for rev in revision_line.load_from_file():
                 print('SETTINGS TO FOLDER: ' + rev)
                 self.variate_config(setup, rev)
